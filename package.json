@@ -1,0 +1,16 @@
+{
+  "name": "kiwify-cart-recovery",
+  "version": "1.0.0",
+  "description": "Agente de recuperação de carrinho abandonado para Kiwify via WhatsApp + Claude AI",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0"
+  }
+}

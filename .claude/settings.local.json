@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(npm install:*)",
+      "Bash(cp .env.example .env)",
+      "Bash(timeout 5 node src/index.js)",
+      "Bash(gh auth:*)"
+    ]
+  }
+}
