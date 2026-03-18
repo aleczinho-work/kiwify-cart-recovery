@@ -65,3 +65,6 @@ app.listen(config.port, async () => {
   }
   console.log('='.repeat(50));
 });
+
+// Export para Vercel
+module.exports = app;
