@@ -7,36 +7,35 @@ const messages = require('../templates/messages');
 
 /**
  * POST /whatsapp/webhook
- * Recebe mensagens dos clientes via Evolution API
+ * Recebe mensagens dos clientes via Z-API
  */
 router.post('/webhook', async (req, res) => {
   try {
     const body = req.body;
 
-    // Evolution API envia diferentes tipos de evento
-    // Filtra apenas mensagens de texto recebidas
-    if (!body || body.event !== 'messages.upsert') {
+    if (!body) {
       return res.status(200).json({ status: 'ignored' });
     }
 
-    const message = body.data;
-    if (!message || message.key?.fromMe) {
+    // Z-API envia mensagens recebidas com fromMe: false
+    if (body.fromMe) {
       return res.status(200).json({ status: 'ignored' });
     }
 
-    const phone = message.key?.remoteJid?.replace('@s.whatsapp.net', '') || '';
-    const text = message.message?.conversation ||
-                 message.message?.extendedTextMessage?.text || '';
+    // Extrai dados no formato Z-API
+    const phone = body.phone || '';
+    const text = body.text?.message || body.text || '';
 
     if (!phone || !text) {
       return res.status(200).json({ status: 'ignored' });
     }
 
-    console.log(`[WhatsApp In] Mensagem de ${phone}: ${text}`);
+    const cleanPhone = phone.replace(/\D/g, '');
+    console.log(`[WhatsApp In] Mensagem de ${cleanPhone}: ${text}`);
 
     // Busca dados do lead
-    const lead = store.getLead(phone);
-    const customerName = lead?.name || 'Cliente';
+    const lead = store.getLead(cleanPhone);
+    const customerName = lead?.name || body.senderName || 'Cliente';
 
     // Monta contexto para a IA
     let context = '';
@@ -51,12 +50,11 @@ router.post('/webhook', async (req, res) => {
     const response = await claude.answerQuestion(customerName, text, context);
 
     if (response.needsHandoff) {
-      // IA não soube responder — escala para humano
-      console.log(`[WhatsApp] Handoff para humano — ${phone}`);
-      await whatsapp.sendMessage(phone, messages.humanHandoff(customerName));
-      store.upsertLead(phone, { needsHumanAttention: true });
+      console.log(`[WhatsApp] Handoff para humano — ${cleanPhone}`);
+      await whatsapp.sendMessage(cleanPhone, messages.humanHandoff(customerName));
+      store.upsertLead(cleanPhone, { needsHumanAttention: true });
     } else {
-      await whatsapp.sendMessage(phone, response.text);
+      await whatsapp.sendMessage(cleanPhone, response.text);
     }
 
     res.status(200).json({ status: 'ok' });

@@ -7,10 +7,10 @@ const config = {
     webhookSecret: process.env.KIWIFY_WEBHOOK_SECRET,
   },
 
-  evolution: {
-    apiUrl: process.env.EVOLUTION_API_URL,
-    apiKey: process.env.EVOLUTION_API_KEY,
-    instance: process.env.EVOLUTION_INSTANCE,
+  zapi: {
+    instance: process.env.ZAPI_INSTANCE_ID,
+    apiKey: process.env.ZAPI_TOKEN,
+    clientToken: process.env.ZAPI_CLIENT_TOKEN,
   },
 
   anthropic: {

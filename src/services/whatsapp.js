@@ -1,18 +1,18 @@
 const axios = require('axios');
 const config = require('../config');
 
-const { apiUrl, apiKey, instance } = config.evolution;
+const { apiUrl, apiKey, instance } = config.zapi;
 
 const api = axios.create({
-  baseURL: `${apiUrl}`,
+  baseURL: `https://api.z-api.io/instances/${instance}/token/${apiKey}`,
   headers: {
     'Content-Type': 'application/json',
-    apikey: apiKey,
+    'Client-Token': config.zapi.clientToken,
   },
 });
 
 /**
- * Envia uma mensagem de texto via Evolution API
+ * Envia uma mensagem de texto via Z-API
  * @param {string} phone - Número do telefone (ex: 5511999999999)
  * @param {string} text - Texto da mensagem
  */
@@ -20,9 +20,9 @@ async function sendMessage(phone, text) {
   try {
     const cleanPhone = phone.replace(/\D/g, '');
 
-    const response = await api.post(`/message/sendText/${instance}`, {
-      number: cleanPhone,
-      text,
+    const response = await api.post('/send-text', {
+      phone: cleanPhone,
+      message: text,
     });
 
     console.log(`[WhatsApp] Mensagem enviada para ${cleanPhone}`);
@@ -38,7 +38,7 @@ async function sendMessage(phone, text) {
  */
 async function checkConnection() {
   try {
-    const response = await api.get(`/instance/connectionState/${instance}`);
+    const response = await api.get('/status');
     return response.data;
   } catch (err) {
     console.error('[WhatsApp] Erro ao verificar conexão:', err.message);
