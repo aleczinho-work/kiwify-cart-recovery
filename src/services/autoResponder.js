@@ -1,12 +1,33 @@
 const config = require('../config');
 
 const { checkoutUrl } = config.product;
+const coverImageUrl = config.product.coverImageUrl;
 
 /**
  * Respostas automáticas por palavras-chave
  * Economiza chamadas à Claude API respondendo objeções conhecidas
  */
 const autoResponses = [
+  {
+    id: 'saudacao',
+    keywords: ['oi', 'olá', 'ola', 'quem é', 'quem e', 'quem é você', 'quem e voce', 'com quem eu falo', 'com quem falo', 'boa tarde', 'boa noite', 'bom dia', 'diga', 'fala', 'fala comigo', 'pode falar', 'te conheço', 'te conheco', 'quem ta falando', 'quem tá falando', 'quem fala', 'eai', 'e aí', 'e ai', 'oii', 'oie', 'opa', 'hello', 'hey'],
+    exactMatch: ['?', '??', '???', 'oi', 'ola', 'olá', 'oii', 'oie', 'opa', 'diga', 'fala', 'eai', 'hey', 'hello'],
+    sendImage: true,
+    response: (nome) =>
+      `Olá tudo bem? Fico feliz que você tenha tomado essa decisão de buscar mais sobre Cristo!\n\n` +
+      `Você chegou até aqui por um motivo.\n` +
+      `Não foi curiosidade.\n` +
+      `Não foi impulso.\n\n` +
+      `Quando alguém abandona esse livro, quase nunca é por preço.\n` +
+      `É porque a verdade começou a incomodar.\n\n` +
+      `*Identidade Desbloqueada* não é um livro confortável.\n` +
+      `Ele confronta o silêncio que você aprendeu a carregar.\n\n` +
+      `Se você sente que ainda não é o momento, tudo bem.\n` +
+      `Mas se você sabe que está evitando uma decisão...\n` +
+      `talvez esse seja exatamente o ponto.\n\n` +
+      `O acesso continua disponível.\n` +
+      `Retomar acesso ao livro: ${checkoutUrl}`,
+  },
   {
     id: 'preco',
     keywords: ['quanto custa', 'qual o valor', 'qual o preco', 'qual o preço', 'quanto é', 'quanto e', 'quanto ta', 'quanto tá', 'qual preco', 'qual preço', 'quanto ficou', 'quanto fica'],
@@ -102,7 +123,8 @@ const autoResponses = [
   },
   {
     id: 'audio',
-    keywords: ['[audio]', '[áudio]', '[voice]', '[voz]', 'audio', 'áudio'],
+    keywords: ['[audio]', '[áudio]', '[voice]', '[voz]'],
+    isAudio: true,
     response: (nome) =>
       `Desculpa, mas no momento eu só consigo responder por texto. 😊\n\n` +
       `Se puder me escrever sua dúvida ou pergunta aqui, vou te responder com o maior prazer!`,
@@ -124,12 +146,28 @@ function normalize(text) {
  * Tenta encontrar uma resposta automática baseada em palavras-chave
  * @param {string} customerName - Nome do cliente
  * @param {string} message - Mensagem do cliente
- * @returns {{ text: string, matched: boolean, matchedId: string|null }}
+ * @returns {{ text: string, matched: boolean, matchedId: string|null, sendImage: boolean }}
  */
 function getAutoResponse(customerName, message) {
   const normalizedMessage = normalize(message);
 
   for (const item of autoResponses) {
+    // Verifica exact match primeiro (mensagens curtas como "oi", "?")
+    if (item.exactMatch) {
+      for (const exact of item.exactMatch) {
+        if (normalizedMessage === normalize(exact)) {
+          console.log(`[AutoResponder] Exact match encontrado: "${item.id}" (exact: "${exact}")`);
+          return {
+            text: item.response(customerName),
+            matched: true,
+            matchedId: item.id,
+            sendImage: item.sendImage || false,
+          };
+        }
+      }
+    }
+
+    // Verifica keywords (contém)
     for (const keyword of item.keywords) {
       const normalizedKeyword = normalize(keyword);
       if (normalizedMessage.includes(normalizedKeyword)) {
@@ -138,12 +176,28 @@ function getAutoResponse(customerName, message) {
           text: item.response(customerName),
           matched: true,
           matchedId: item.id,
+          sendImage: item.sendImage || false,
         };
       }
     }
   }
 
-  return { text: null, matched: false, matchedId: null };
+  return { text: null, matched: false, matchedId: null, sendImage: false };
 }
 
-module.exports = { getAutoResponse };
+/**
+ * Retorna a resposta automática para áudio
+ * @param {string} customerName - Nome do cliente
+ * @returns {{ text: string, matched: boolean, matchedId: string }}
+ */
+function getAudioResponse(customerName) {
+  const audioItem = autoResponses.find(item => item.id === 'audio');
+  return {
+    text: audioItem.response(customerName),
+    matched: true,
+    matchedId: 'audio',
+    sendImage: false,
+  };
+}
+
+module.exports = { getAutoResponse, getAudioResponse, coverImageUrl };

@@ -28,23 +28,41 @@ router.post('/webhook', async (req, res) => {
     const phone = body.phone || '';
     const text = body.text?.message || body.text || '';
 
-    if (!phone || !text) {
+    // Detecta se é áudio (Z-API envia áudio sem campo text)
+    const isAudio = !!(body.audio || body.type === 'audio' || body.messageType === 'audio' || body.isAudio);
+
+    if (!phone || (!text && !isAudio)) {
       return res.status(200).json({ status: 'ignored' });
     }
 
     const cleanPhone = phone.replace(/\D/g, '');
-    console.log(`[WhatsApp In] Mensagem de ${cleanPhone}: ${text}`);
+    console.log(`[WhatsApp In] ${isAudio ? 'ÁUDIO' : 'Mensagem'} de ${cleanPhone}: ${text || '[áudio]'}`);
 
     // Busca dados do lead
     const lead = store.getLead(cleanPhone);
     const customerName = lead?.name || body.senderName || 'Cliente';
+
+    // 🎤 Se for áudio, responde pedindo texto
+    if (isAudio) {
+      const audioResponse = autoResponder.getAudioResponse(customerName);
+      console.log(`[WhatsApp] Resposta automática (audio) para ${cleanPhone}`);
+      await whatsapp.sendMessage(cleanPhone, audioResponse.text);
+      return res.status(200).json({ status: 'ok', source: 'auto_audio' });
+    }
 
     // 1️⃣ PRIMEIRO: Tenta resposta automática por palavras-chave (custo zero)
     const autoResponse = autoResponder.getAutoResponse(customerName, text);
 
     if (autoResponse.matched) {
       console.log(`[WhatsApp] Resposta automática (${autoResponse.matchedId}) para ${cleanPhone}`);
-      await whatsapp.sendMessage(cleanPhone, autoResponse.text);
+
+      // Se a resposta pede envio de imagem (ex: saudação), envia com capa do livro
+      if (autoResponse.sendImage && autoResponder.coverImageUrl) {
+        await whatsapp.sendImage(cleanPhone, autoResponder.coverImageUrl, autoResponse.text);
+      } else {
+        await whatsapp.sendMessage(cleanPhone, autoResponse.text);
+      }
+
       return res.status(200).json({ status: 'ok', source: 'auto' });
     }
 
