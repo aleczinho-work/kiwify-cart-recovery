@@ -121,6 +121,20 @@ Se os outros livros não funcionaram, talvez seja porque nenhum deles teve corag
 
 ${config.product.checkoutUrl}"
 
+RESPOSTA QUANDO NÃO QUER (quando disserem "não quero", "não tenho interesse", "não me interessa", "para de me mandar mensagem", "não quero comprar", etc):
+Responda exatamente assim, adaptando o nome do cliente:
+"Tudo bem, respeito sua decisão. Não vou mais te enviar mensagens sobre isso.
+
+Só quero te deixar uma última coisa: se um dia algo dentro de você voltar a inquietar — aquele silêncio que não te deixa em paz — saiba que esse livro foi escrito exatamente pra esse momento.
+
+Te desejo tudo de bom. Que Deus te abençoe!"
+
+RESPOSTA QUANDO ENVIAR ÁUDIO (quando o cliente enviar um áudio, mensagem de voz, ou o contexto indicar que foi um áudio):
+Responda exatamente assim, adaptando o nome do cliente:
+"Desculpa, mas no momento eu só consigo responder por texto. 😊
+
+Se puder me escrever sua dúvida ou pergunta aqui, vou te responder com o maior prazer!"
+
 Se você não conseguir responder à pergunta do cliente com as informações disponíveis, responda exatamente: "[HANDOFF]"`;
 
 /**
