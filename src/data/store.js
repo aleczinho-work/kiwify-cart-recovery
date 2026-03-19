@@ -1,24 +1,5 @@
-const fs = require('fs');
-const path = require('path');
-
-const DATA_FILE = path.join(__dirname, 'leads.json');
-
-function loadLeads() {
-  try {
-    if (fs.existsSync(DATA_FILE)) {
-      return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-    }
-  } catch (err) {
-    console.error('[Store] Erro ao carregar leads:', err.message);
-  }
-  return {};
-}
-
-function saveLeads(leads) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(leads, null, 2), 'utf-8');
-}
-
-const leads = loadLeads();
+// Armazenamento em memória (compatível com Vercel serverless)
+const leads = {};
 
 const store = {
   /**
@@ -35,7 +16,6 @@ const store = {
       updatedAt: new Date().toISOString(),
       createdAt: existing.createdAt || new Date().toISOString(),
     };
-    saveLeads(leads);
     return leads[phone];
   },
 
@@ -53,7 +33,6 @@ const store = {
     if (leads[phone]) {
       leads[phone].status = 'converted';
       leads[phone].convertedAt = new Date().toISOString();
-      saveLeads(leads);
     }
   },
 
