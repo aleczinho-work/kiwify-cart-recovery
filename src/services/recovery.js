@@ -50,7 +50,15 @@ async function processScheduledMessage({ phone, name, type, step }) {
 
   try {
     const text = template[stepKey](name);
-    await whatsapp.sendMessage(phone, text);
+    const coverUrl = config.product.coverImageUrl;
+
+    // Envia imagem com legenda na primeira mensagem, texto simples nas demais
+    if (step === 1 && coverUrl) {
+      await whatsapp.sendImage(phone, coverUrl, text);
+    } else {
+      await whatsapp.sendMessage(phone, text);
+    }
+
     store.logMessage(phone, type, step);
     console.log(`[Recovery] ${type} step ${step} enviada para ${phone}`);
   } catch (err) {

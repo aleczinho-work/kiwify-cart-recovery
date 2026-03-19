@@ -29,6 +29,7 @@ const config = {
     price: process.env.PRODUCT_PRICE || '0',
     checkoutUrl: process.env.CHECKOUT_URL || '',
     guarantee: process.env.PRODUCT_GUARANTEE || '7 dias de garantia',
+    coverImageUrl: process.env.BOOK_COVER_URL || '',
   },
 
   // Tempos de espera antes de enviar mensagens (em ms)

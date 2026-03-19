@@ -34,6 +34,30 @@ async function sendMessage(phone, text) {
 }
 
 /**
+ * Envia uma imagem com legenda via Z-API
+ * @param {string} phone - Número do telefone (ex: 5511999999999)
+ * @param {string} imageUrl - URL pública da imagem
+ * @param {string} caption - Legenda da imagem (texto que acompanha)
+ */
+async function sendImage(phone, imageUrl, caption) {
+  try {
+    const cleanPhone = phone.replace(/\D/g, '');
+
+    const response = await api.post('/send-image', {
+      phone: cleanPhone,
+      image: imageUrl,
+      caption: caption,
+    });
+
+    console.log(`[WhatsApp] Imagem enviada para ${cleanPhone}`);
+    return response.data;
+  } catch (err) {
+    console.error(`[WhatsApp] Erro ao enviar imagem para ${phone}:`, err.response?.data || err.message);
+    throw err;
+  }
+}
+
+/**
  * Verifica se a instância do WhatsApp está conectada
  */
 async function checkConnection() {
@@ -46,4 +70,4 @@ async function checkConnection() {
   }
 }
 
-module.exports = { sendMessage, checkConnection };
+module.exports = { sendMessage, sendImage, checkConnection };

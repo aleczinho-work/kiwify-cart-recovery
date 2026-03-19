@@ -8,27 +8,44 @@ const messages = {
   // =============================================
   abandonedCart: {
     first: (nome) =>
-      `Oi ${nome}, tudo bem? 😊\n\n` +
-      `Vi que você estava dando uma olhada no *${produto}* e não finalizou.\n\n` +
-      `Aconteceu alguma coisa? Ficou com alguma dúvida?\n\n` +
-      `Estou aqui pra te ajudar! Se quiser continuar, é só acessar:\n` +
-      `${checkoutUrl}\n\n` +
-      `Lembrando que você tem ${guarantee} 💚`,
+      `Ola tudo bem? Fico feliz que voce tenha tomado essa decisao de buscar mais sobre Cristo!\n\n` +
+      `Voce chegou ate aqui por um motivo.\n` +
+      `Nao foi curiosidade.\n` +
+      `Nao foi impulso.\n\n` +
+      `Quando alguem abandona esse livro, quase nunca e por preco.\n` +
+      `E porque a verdade comecou a incomodar.\n\n` +
+      `*Identidade Desbloqueada* nao e um livro confortavel.\n` +
+      `Ele confronta o silencio que voce aprendeu a carregar.\n\n` +
+      `Se voce sente que ainda nao e o momento, tudo bem.\n` +
+      `Mas se voce sabe que esta evitando uma decisao...\n` +
+      `talvez esse seja exatamente o ponto.\n\n` +
+      `O acesso continua disponivel.\n` +
+      `Retomar acesso ao livro: ${checkoutUrl}`,
 
     second: (nome) =>
-      `${nome}, passando aqui rapidinho! ⏰\n\n` +
-      `O *${produto}* está com muita procura e não quero que você perca essa oportunidade.\n\n` +
-      `Muita gente já está tendo resultados incríveis!\n\n` +
-      `Garanta o seu agora: ${checkoutUrl}\n\n` +
-      `Qualquer dúvida, me chama aqui! 😉`,
+      `${nome}, eu nao sei o que te travou.\n\n` +
+      `Talvez tenha sido o momento. Talvez a duvida.\n` +
+      `Talvez algo dentro de voce disse "ainda nao".\n\n` +
+      `Mas eu preciso ser honesto com voce:\n` +
+      `o *Identidade Desbloqueada* nao foi escrito pra quem esta pronto.\n` +
+      `Foi escrito pra quem esta cansado de esperar estar pronto.\n\n` +
+      `Cada capitulo desse livro foi pensado pra quebrar uma camada de silencio.\n` +
+      `E quem ja leu sabe: depois que voce enxerga, nao tem como voltar atras.\n\n` +
+      `Se voce sente que esse livro e pra voce, o link ainda esta ativo:\n` +
+      `${checkoutUrl}\n\n` +
+      `E lembre-se: voce tem ${guarantee}. Se nao fizer sentido, devolvemos cada centavo.`,
 
     third: (nome) =>
-      `${nome}, última chance! 🚀\n\n` +
-      `Essa é a minha última mensagem sobre o *${produto}*.\n\n` +
-      `Sei que às vezes a gente precisa de um empurrãozinho, então vou deixar seu link especial aqui:\n` +
+      `${nome}, essa e a ultima vez que vou falar sobre isso.\n\n` +
+      `Eu nao vou insistir. Nao e assim que funciona.\n\n` +
+      `Mas antes de encerrar, quero te deixar uma reflexao:\n\n` +
+      `_Quantas vezes voce sentiu que Deus estava te chamando pra algo maior...\n` +
+      `e deixou passar?_\n\n` +
+      `O *Identidade Desbloqueada* existe pra ser o ponto de virada.\n` +
+      `O fim do silencio. O inicio do seu proposito.\n\n` +
+      `Se for pra voce, voce sabe.\n` +
       `${checkoutUrl}\n\n` +
-      `Depois dessa, não vou mais te incomodar. Mas fica a dica: quem já comprou, não se arrependeu! 💪\n\n` +
-      `${guarantee} — zero risco pra você.`,
+      `Deus te abencoe, independente da sua decisao.`,
   },
 
   // =============================================
@@ -36,17 +53,23 @@ const messages = {
   // =============================================
   pix: {
     first: (nome) =>
-      `Oi ${nome}! 😊\n\n` +
-      `Vi que você gerou um Pix para o *${produto}* no valor de R$ ${preco}.\n\n` +
-      `Só falta concluir o pagamento! O código Pix tem validade limitada ⏳\n\n` +
-      `Se precisar gerar um novo, é só acessar: ${checkoutUrl}\n\n` +
-      `Ficou com alguma dúvida? Me chama aqui!`,
+      `Ola ${nome}! Vi que voce gerou o Pix para o *Identidade Desbloqueada*.\n\n` +
+      `Voce ja deu o passo mais importante: decidiu.\n` +
+      `Agora so falta concluir.\n\n` +
+      `O codigo Pix tem validade limitada. Se expirou, sem problema, e so gerar um novo aqui:\n` +
+      `${checkoutUrl}\n\n` +
+      `O pagamento e instantaneo e o acesso e liberado na hora.\n\n` +
+      `Se tiver qualquer duvida ou dificuldade com o pagamento, me chama aqui que te ajudo!`,
 
     second: (nome) =>
-      `${nome}, seu Pix está prestes a expirar! ⚠️\n\n` +
-      `Não deixe para depois — garanta seu acesso ao *${produto}* agora.\n\n` +
-      `Gere um novo Pix aqui: ${checkoutUrl}\n\n` +
-      `O pagamento é instantâneo e o acesso é liberado na hora! 🚀`,
+      `${nome}, percebi que o Pix do *Identidade Desbloqueada* ainda nao foi concluido.\n\n` +
+      `Eu entendo que as vezes a correria do dia atrapalha.\n` +
+      `Mas nao deixe essa decisao esfriar.\n\n` +
+      `Voce sentiu algo quando chegou ate aquele checkout.\n` +
+      `Aquilo nao foi por acaso.\n\n` +
+      `Gere um novo Pix aqui (leva menos de 1 minuto):\n` +
+      `${checkoutUrl}\n\n` +
+      `Lembrando: ${guarantee}. Zero risco pra voce.`,
   },
 
   // =============================================
@@ -54,42 +77,52 @@ const messages = {
   // =============================================
   boleto: {
     first: (nome) =>
-      `Oi ${nome}! 😊\n\n` +
-      `Percebi que você gerou um boleto para o *${produto}*.\n\n` +
-      `Só um lembrete: o boleto vence em breve! Não esqueça de pagar para garantir seu acesso.\n\n` +
-      `Se precisar de uma segunda via, acesse: ${checkoutUrl}\n\n` +
-      `Alguma dúvida? Estou aqui!`,
+      `Oi ${nome}! Vi que voce gerou um boleto para o *Identidade Desbloqueada*.\n\n` +
+      `So passando pra lembrar: o boleto tem data de vencimento, entao nao deixe passar!\n\n` +
+      `Se precisar de uma segunda via ou quiser acessar o boleto novamente:\n` +
+      `${checkoutUrl}\n\n` +
+      `Qualquer duvida sobre o pagamento, e so me chamar aqui.`,
 
     second: (nome) =>
-      `${nome}, seu boleto do *${produto}* vence amanhã! 📋\n\n` +
-      `Não perca o acesso — pague hoje para garantir.\n\n` +
-      `Se preferir, você pode pagar via Pix que é instantâneo! Acesse: ${checkoutUrl}\n\n` +
-      `Precisa de ajuda? Me chama! 😉`,
+      `${nome}, o boleto do *Identidade Desbloqueada* vence em breve.\n\n` +
+      `Se ainda nao conseguiu pagar, tenho uma sugestao:\n` +
+      `voce pode pagar via *Pix* que e instantaneo e o acesso e liberado na hora!\n\n` +
+      `Acesse aqui e escolha Pix como forma de pagamento:\n` +
+      `${checkoutUrl}\n\n` +
+      `E mais rapido, mais facil, e voce ja comeca a leitura hoje mesmo.`,
 
     third: (nome) =>
-      `${nome}, vi que o boleto do *${produto}* não foi pago 😕\n\n` +
-      `Que tal pagar via *Pix*? É instantâneo e o acesso é liberado na hora!\n\n` +
-      `Acesse aqui: ${checkoutUrl}\n\n` +
-      `Lembrando: ${guarantee}. Ou seja, zero risco pra você! 💚\n\n` +
-      `Se tiver qualquer dúvida, pode me chamar!`,
+      `${nome}, vi que o boleto nao foi pago.\n\n` +
+      `Eu sei que boleto as vezes complica. Esquece, vence, da trabalho.\n\n` +
+      `Por isso quero te oferecer uma alternativa:\n` +
+      `pague via *Pix* e o acesso ao *Identidade Desbloqueada* e liberado na hora.\n\n` +
+      `${checkoutUrl}\n\n` +
+      `E lembre-se: voce tem ${guarantee}.\n` +
+      `Se o livro nao fizer sentido pra voce, devolvemos o valor.\n` +
+      `Sem perguntas, sem burocracia.\n\n` +
+      `Essa e a minha ultima mensagem. A decisao e sua.\n` +
+      `Que Deus te ilumine nessa escolha.`,
   },
 
   // =============================================
   // COMPRA APROVADA
   // =============================================
   purchaseApproved: (nome) =>
-    `Parabéns, ${nome}! 🎉🎉\n\n` +
-    `Sua compra do *${produto}* foi aprovada com sucesso!\n\n` +
-    `Você fez uma ótima escolha. Seu acesso será liberado em instantes.\n\n` +
-    `Se precisar de qualquer ajuda, estou por aqui! 💚`,
+    `${nome}, sua compra do *Identidade Desbloqueada* foi aprovada!\n\n` +
+    `Que alegria ter voce nessa jornada!\n\n` +
+    `Esse livro foi escrito com proposito, e eu creio que vai transformar a forma como voce se enxerga diante de Deus.\n\n` +
+    `Seu acesso sera liberado em instantes.\n` +
+    `Qualquer duvida, estou por aqui.\n\n` +
+    `Que Deus te abencoe nessa leitura!\n` +
+    `- Alec Guimel`,
 
   // =============================================
-  // MENSAGEM DE FALLBACK (IA não soube responder)
+  // MENSAGEM DE FALLBACK (IA nao soube responder)
   // =============================================
   humanHandoff: (nome) =>
-    `${nome}, ótima pergunta! 🤔\n\n` +
-    `Vou encaminhar para nosso time de suporte para te dar a melhor resposta.\n\n` +
-    `Em breve alguém vai te retornar. Obrigado pela paciência! 🙏`,
+    `${nome}, otima pergunta!\n\n` +
+    `Vou encaminhar para que alguem do nosso time possa te dar a melhor resposta.\n\n` +
+    `Em breve voce recebera um retorno. Obrigado pela paciencia!`,
 };
 
 module.exports = messages;
