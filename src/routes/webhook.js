@@ -7,7 +7,7 @@ const recovery = require('../services/recovery');
  * POST /webhook
  * Recebe eventos da Kiwify (carrinho abandonado, pix gerado, boleto gerado, compra aprovada)
  */
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const payload = req.body;
 
@@ -28,19 +28,19 @@ router.post('/', (req, res) => {
 
     switch (eventType) {
       case 'abandoned_cart':
-        recovery.startAbandonedCartRecovery(data.customer.phone, data.customer.name);
+        await recovery.startAbandonedCartRecovery(data.customer.phone, data.customer.name);
         break;
 
       case 'pix_generated':
-        recovery.startPixRecovery(data.customer.phone, data.customer.name);
+        await recovery.startPixRecovery(data.customer.phone, data.customer.name);
         break;
 
       case 'boleto_generated':
-        recovery.startBoletoRecovery(data.customer.phone, data.customer.name);
+        await recovery.startBoletoRecovery(data.customer.phone, data.customer.name);
         break;
 
       case 'purchase_approved':
-        recovery.handlePurchaseApproved(data.customer.phone, data.customer.name);
+        await recovery.handlePurchaseApproved(data.customer.phone, data.customer.name);
         break;
 
       default:
