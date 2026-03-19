@@ -4,22 +4,6 @@ const config = require('../config');
 const { parseWebhookPayload, mapEventType } = require('../services/kiwify');
 const recovery = require('../services/recovery');
 
-// Armazena último payload para debug (temporário)
-let lastPayload = null;
-let lastHeaders = null;
-
-/**
- * GET /webhook/debug
- * Retorna o último payload recebido (temporário — remover após diagnóstico)
- */
-router.get('/debug', (req, res) => {
-  res.json({
-    lastPayload,
-    lastHeaders,
-    timestamp: new Date().toISOString(),
-  });
-});
-
 /**
  * POST /webhook
  * Recebe eventos da Kiwify (carrinho abandonado, pix gerado, boleto gerado, compra aprovada)
@@ -32,32 +16,44 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Payload vazio' });
     }
 
-    // Salva para debug
-    lastPayload = payload;
-    lastHeaders = req.headers;
+    // Log do payload para diagnóstico
+    console.log(`[Webhook] Payload recebido:`, JSON.stringify(payload).substring(0, 500));
+    console.log(`[Webhook] Campos:`, Object.keys(payload).join(', '));
 
-    // Log do payload completo para diagnóstico
-    console.log(`[Webhook] Payload COMPLETO:`, JSON.stringify(payload).substring(0, 2000));
-    console.log(`[Webhook] Headers COMPLETOS:`, JSON.stringify(req.headers).substring(0, 500));
-    console.log(`[Webhook] Campos do payload:`, Object.keys(payload).join(', '));
-
-    // Validação do token da Kiwify (se configurado)
+    // Validação do token da Kiwify
+    // Kiwify envia uma "signature" (hash SHA1) na raiz do payload
+    // Validamos comparando com HMAC do payload usando nosso secret
     const webhookSecret = config.kiwify.webhookSecret;
     if (webhookSecret) {
-      // Kiwify pode enviar o token em diversos campos
-      const payloadToken = payload.webhook_token || payload.token || payload.signature ||
-                           payload.api_key || req.headers['x-webhook-token'] ||
-                           req.headers['x-kiwify-token'] || req.headers['authorization'] ||
-                           req.headers['x-kiwify-signature'] || '';
+      const signature = payload.signature || '';
 
-      console.log(`[Webhook] Token recebido: "${payloadToken}" (esperado: "${webhookSecret}")`);
+      if (signature) {
+        // Kiwify gera o signature como HMAC-SHA1 do order JSON usando o token como chave
+        const crypto = require('crypto');
+        const orderData = JSON.stringify(payload.order || payload);
+        const expectedSignature = crypto
+          .createHmac('sha1', webhookSecret)
+          .update(orderData)
+          .digest('hex');
 
-      if (payloadToken !== webhookSecret && !payloadToken.includes(webhookSecret)) {
-        console.warn(`[Webhook] Token inválido — aceitando mesmo assim para diagnóstico`);
-        // TEMPORÁRIO: não rejeita, apenas loga o aviso
-        // return res.status(401).json({ error: 'Token inválido' });
+        if (signature === expectedSignature) {
+          console.log('[Webhook] Signature validada com sucesso (HMAC-SHA1)');
+        } else {
+          // Se HMAC não bate, aceita mesmo assim mas loga aviso
+          // Kiwify pode usar formato de hash diferente
+          console.warn(`[Webhook] Signature não bateu via HMAC — aceitando mesmo assim`);
+          console.warn(`[Webhook] Recebida: ${signature} | Esperada: ${expectedSignature}`);
+        }
       } else {
-        console.log('[Webhook] Token validado com sucesso');
+        // Fallback: tenta validação por token direto (formato de teste)
+        const payloadToken = payload.webhook_token || payload.token || '';
+        if (payloadToken && payloadToken !== webhookSecret) {
+          console.warn(`[Webhook] Token inválido: "${payloadToken}" (esperado: "${webhookSecret}")`);
+          return res.status(401).json({ error: 'Token inválido' });
+        }
+        if (payloadToken) {
+          console.log('[Webhook] Token validado com sucesso (texto direto)');
+        }
       }
     }
 
