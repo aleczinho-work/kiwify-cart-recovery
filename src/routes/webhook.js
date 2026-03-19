@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const config = require('../config');
 const { parseWebhookPayload, mapEventType } = require('../services/kiwify');
 const recovery = require('../services/recovery');
 
@@ -13,6 +14,20 @@ router.post('/', async (req, res) => {
 
     if (!payload) {
       return res.status(400).json({ error: 'Payload vazio' });
+    }
+
+    // Log do payload completo para diagnóstico
+    console.log(`[Webhook] Payload recebido:`, JSON.stringify(payload).substring(0, 500));
+
+    // Validação do token da Kiwify (se configurado)
+    const webhookSecret = config.kiwify.webhookSecret;
+    if (webhookSecret) {
+      const payloadToken = payload.webhook_token || payload.token || '';
+      if (payloadToken !== webhookSecret) {
+        console.warn(`[Webhook] Token inválido: "${payloadToken}" (esperado: "${webhookSecret}")`);
+        return res.status(401).json({ error: 'Token inválido' });
+      }
+      console.log('[Webhook] Token validado com sucesso');
     }
 
     const data = parseWebhookPayload(payload);
