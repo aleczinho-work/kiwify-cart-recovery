@@ -1,102 +1,110 @@
+const { Client } = require('@upstash/qstash');
 const config = require('../config');
 const store = require('../data/store');
 const whatsapp = require('./whatsapp');
 const messages = require('../templates/messages');
 
-// Armazena timeouts ativos para poder cancelá-los
-const activeTimers = new Map();
+const qstash = new Client({ token: config.qstash.token });
+
+const BASE_URL = config.qstash.callbackUrl;
 
 /**
- * Cancela todos os timers de um lead (quando ele converte)
+ * Agenda uma mensagem via QStash para ser enviada após um delay
  */
-function cancelTimers(phone) {
-  const timers = activeTimers.get(phone);
-  if (timers) {
-    timers.forEach((timer) => clearTimeout(timer));
-    activeTimers.delete(phone);
-    console.log(`[Recovery] Timers cancelados para ${phone}`);
+async function scheduleMessage(phone, name, type, step, delaySec) {
+  try {
+    await qstash.publishJSON({
+      url: `${BASE_URL}/scheduled/send`,
+      body: { phone, name, type, step },
+      delay: delaySec,
+    });
+    console.log(`[Recovery] Agendado ${type} step ${step} para ${phone} em ${delaySec}s`);
+  } catch (err) {
+    console.error(`[Recovery] Erro ao agendar ${type} step ${step}:`, err.message);
   }
 }
 
 /**
- * Agenda uma mensagem para ser enviada após um delay
+ * Processa callback do QStash — envia a mensagem agendada
  */
-function scheduleMessage(phone, name, type, step, delay, getMessage) {
-  const timer = setTimeout(async () => {
-    // Verifica se o lead já converteu antes de enviar
-    if (store.isConverted(phone)) {
-      console.log(`[Recovery] ${phone} já converteu, pulando ${type} step ${step}`);
-      return;
-    }
-
-    try {
-      const text = getMessage(name);
-      await whatsapp.sendMessage(phone, text);
-      store.logMessage(phone, type, step);
-      console.log(`[Recovery] ${type} step ${step} enviada para ${phone}`);
-    } catch (err) {
-      console.error(`[Recovery] Erro ao enviar ${type} step ${step} para ${phone}:`, err.message);
-    }
-  }, delay);
-
-  // Salva o timer para poder cancelar depois
-  if (!activeTimers.has(phone)) {
-    activeTimers.set(phone, []);
+async function processScheduledMessage({ phone, name, type, step }) {
+  if (store.isConverted(phone)) {
+    console.log(`[Recovery] ${phone} já converteu, pulando ${type} step ${step}`);
+    return;
   }
-  activeTimers.get(phone).push(timer);
+
+  const templateMap = {
+    'abandoned_cart': messages.abandonedCart,
+    'pix': messages.pix,
+    'boleto': messages.boleto,
+  };
+
+  const stepMap = { 1: 'first', 2: 'second', 3: 'third' };
+  const template = templateMap[type];
+  const stepKey = stepMap[step];
+
+  if (!template || !template[stepKey]) {
+    console.error(`[Recovery] Template não encontrado: ${type} ${stepKey}`);
+    return;
+  }
+
+  try {
+    const text = template[stepKey](name);
+    await whatsapp.sendMessage(phone, text);
+    store.logMessage(phone, type, step);
+    console.log(`[Recovery] ${type} step ${step} enviada para ${phone}`);
+  } catch (err) {
+    console.error(`[Recovery] Erro ao enviar ${type} step ${step} para ${phone}:`, err.message);
+  }
 }
 
 /**
  * Inicia sequência de recuperação de carrinho abandonado
  */
-function startAbandonedCartRecovery(phone, name) {
+async function startAbandonedCartRecovery(phone, name) {
   console.log(`[Recovery] Iniciando recuperação de carrinho para ${name} (${phone})`);
-
-  const delays = config.delays.abandonedCart;
 
   store.upsertLead(phone, { name, type: 'abandoned_cart', status: 'recovering' });
 
-  scheduleMessage(phone, name, 'abandoned_cart', 1, delays.first, messages.abandonedCart.first);
-  scheduleMessage(phone, name, 'abandoned_cart', 2, delays.second, messages.abandonedCart.second);
-  scheduleMessage(phone, name, 'abandoned_cart', 3, delays.third, messages.abandonedCart.third);
+  const delays = config.delays.abandonedCart;
+  await scheduleMessage(phone, name, 'abandoned_cart', 1, Math.floor(delays.first / 1000));
+  await scheduleMessage(phone, name, 'abandoned_cart', 2, Math.floor(delays.second / 1000));
+  await scheduleMessage(phone, name, 'abandoned_cart', 3, Math.floor(delays.third / 1000));
 }
 
 /**
  * Inicia sequência de remarketing para Pix gerado
  */
-function startPixRecovery(phone, name) {
+async function startPixRecovery(phone, name) {
   console.log(`[Recovery] Iniciando remarketing Pix para ${name} (${phone})`);
-
-  const delays = config.delays.pix;
 
   store.upsertLead(phone, { name, type: 'pix_generated', status: 'recovering' });
 
-  scheduleMessage(phone, name, 'pix', 1, delays.first, messages.pix.first);
-  scheduleMessage(phone, name, 'pix', 2, delays.second, messages.pix.second);
+  const delays = config.delays.pix;
+  await scheduleMessage(phone, name, 'pix', 1, Math.floor(delays.first / 1000));
+  await scheduleMessage(phone, name, 'pix', 2, Math.floor(delays.second / 1000));
 }
 
 /**
  * Inicia sequência de remarketing para boleto gerado
  */
-function startBoletoRecovery(phone, name) {
+async function startBoletoRecovery(phone, name) {
   console.log(`[Recovery] Iniciando remarketing boleto para ${name} (${phone})`);
-
-  const delays = config.delays.boleto;
 
   store.upsertLead(phone, { name, type: 'boleto_generated', status: 'recovering' });
 
-  scheduleMessage(phone, name, 'boleto', 1, delays.first, messages.boleto.first);
-  scheduleMessage(phone, name, 'boleto', 2, delays.second, messages.boleto.second);
-  scheduleMessage(phone, name, 'boleto', 3, delays.third, messages.boleto.third);
+  const delays = config.delays.boleto;
+  await scheduleMessage(phone, name, 'boleto', 1, Math.floor(delays.first / 1000));
+  await scheduleMessage(phone, name, 'boleto', 2, Math.floor(delays.second / 1000));
+  await scheduleMessage(phone, name, 'boleto', 3, Math.floor(delays.third / 1000));
 }
 
 /**
- * Processa uma compra aprovada — cancela timers e notifica cliente
+ * Processa uma compra aprovada — notifica cliente
  */
 async function handlePurchaseApproved(phone, name) {
   console.log(`[Recovery] Compra aprovada para ${name} (${phone})`);
 
-  cancelTimers(phone);
   store.markConverted(phone);
 
   try {
@@ -111,5 +119,5 @@ module.exports = {
   startPixRecovery,
   startBoletoRecovery,
   handlePurchaseApproved,
-  cancelTimers,
+  processScheduledMessage,
 };

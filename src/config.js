@@ -17,6 +17,11 @@ const config = {
     apiKey: process.env.ANTHROPIC_API_KEY,
   },
 
+  qstash: {
+    token: process.env.QSTASH_TOKEN,
+    callbackUrl: process.env.CALLBACK_URL || 'https://kiwify-cart-recovery.vercel.app',
+  },
+
   product: {
     name: process.env.PRODUCT_NAME || 'Produto',
     description: process.env.PRODUCT_DESCRIPTION || '',

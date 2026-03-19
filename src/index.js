@@ -2,6 +2,7 @@ const express = require('express');
 const config = require('./config');
 const webhookRoutes = require('./routes/webhook');
 const whatsappRoutes = require('./routes/whatsapp');
+const scheduledRoutes = require('./routes/scheduled');
 const { checkConnection } = require('./services/whatsapp');
 const store = require('./data/store');
 
@@ -12,7 +13,8 @@ app.use(express.json());
 
 // Rotas
 app.use('/webhook', webhookRoutes);         // Kiwify envia webhooks aqui
-app.use('/whatsapp', whatsappRoutes);       // Evolution API envia mensagens recebidas aqui
+app.use('/whatsapp', whatsappRoutes);       // Z-API envia mensagens recebidas aqui
+app.use('/scheduled', scheduledRoutes);     // QStash envia callbacks agendados aqui
 
 // Health check
 app.get('/', (req, res) => {
