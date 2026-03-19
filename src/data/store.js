@@ -54,7 +54,6 @@ const store = {
       step,
       sentAt: new Date().toISOString(),
     });
-    saveLeads(leads);
   },
 
   /**
