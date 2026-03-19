@@ -17,13 +17,19 @@ router.post('/', async (req, res) => {
     }
 
     // Log do payload completo para diagnóstico
-    console.log(`[Webhook] Payload recebido:`, JSON.stringify(payload).substring(0, 500));
+    console.log(`[Webhook] Payload recebido:`, JSON.stringify(payload).substring(0, 1000));
 
     // Validação do token da Kiwify (se configurado)
     const webhookSecret = config.kiwify.webhookSecret;
     if (webhookSecret) {
-      const payloadToken = payload.webhook_token || payload.token || '';
-      if (payloadToken !== webhookSecret) {
+      // Kiwify pode enviar o token em diversos campos
+      const payloadToken = payload.webhook_token || payload.token || payload.signature ||
+                           payload.api_key || req.headers['x-webhook-token'] ||
+                           req.headers['x-kiwify-token'] || req.headers['authorization'] || '';
+
+      console.log(`[Webhook] Token recebido: "${payloadToken}" | Headers: ${JSON.stringify(req.headers).substring(0, 300)}`);
+
+      if (payloadToken !== webhookSecret && !payloadToken.includes(webhookSecret)) {
         console.warn(`[Webhook] Token inválido: "${payloadToken}" (esperado: "${webhookSecret}")`);
         return res.status(401).json({ error: 'Token inválido' });
       }
