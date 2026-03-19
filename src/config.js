@@ -19,6 +19,7 @@ const config = {
 
   qstash: {
     token: process.env.QSTASH_TOKEN,
+    url: process.env.QSTASH_URL || 'https://qstash.upstash.io',
     callbackUrl: process.env.CALLBACK_URL || 'https://kiwify-cart-recovery.vercel.app',
   },
 

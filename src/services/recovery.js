@@ -4,7 +4,7 @@ const store = require('../data/store');
 const whatsapp = require('./whatsapp');
 const messages = require('../templates/messages');
 
-const qstash = new Client({ token: config.qstash.token });
+const qstash = new Client({ token: config.qstash.token, baseUrl: config.qstash.url });
 
 const BASE_URL = config.qstash.callbackUrl;
 
