@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const store = require('../data/store');
+const autoResponder = require('../services/autoResponder');
 const claude = require('../services/claude');
 const whatsapp = require('../services/whatsapp');
 const messages = require('../templates/messages');
@@ -8,6 +9,7 @@ const messages = require('../templates/messages');
 /**
  * POST /whatsapp/webhook
  * Recebe mensagens dos clientes via Z-API
+ * Sistema híbrido: tenta resposta automática primeiro, depois Claude API
  */
 router.post('/webhook', async (req, res) => {
   try {
@@ -37,6 +39,18 @@ router.post('/webhook', async (req, res) => {
     const lead = store.getLead(cleanPhone);
     const customerName = lead?.name || body.senderName || 'Cliente';
 
+    // 1️⃣ PRIMEIRO: Tenta resposta automática por palavras-chave (custo zero)
+    const autoResponse = autoResponder.getAutoResponse(customerName, text);
+
+    if (autoResponse.matched) {
+      console.log(`[WhatsApp] Resposta automática (${autoResponse.matchedId}) para ${cleanPhone}`);
+      await whatsapp.sendMessage(cleanPhone, autoResponse.text);
+      return res.status(200).json({ status: 'ok', source: 'auto' });
+    }
+
+    // 2️⃣ SEGUNDO: Se não encontrou, usa Claude API (custo por uso)
+    console.log(`[WhatsApp] Nenhuma resposta automática — usando Claude API para ${cleanPhone}`);
+
     // Monta contexto para a IA
     let context = '';
     if (lead) {
@@ -46,7 +60,6 @@ router.post('/webhook', async (req, res) => {
         'está em contato'}. Status: ${lead.status}`;
     }
 
-    // Gera resposta com Claude
     const response = await claude.answerQuestion(customerName, text, context);
 
     if (response.needsHandoff) {
@@ -57,7 +70,7 @@ router.post('/webhook', async (req, res) => {
       await whatsapp.sendMessage(cleanPhone, response.text);
     }
 
-    res.status(200).json({ status: 'ok' });
+    res.status(200).json({ status: 'ok', source: 'claude' });
   } catch (err) {
     console.error('[WhatsApp Route] Erro:', err.message);
     res.status(500).json({ error: 'Erro interno' });
