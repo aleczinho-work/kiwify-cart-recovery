@@ -33,6 +33,20 @@ Tem gente que gastou mais do que isso num jantar e esqueceu no dia seguinte. Ess
 
 ${config.product.checkoutUrl}"
 
+RESPOSTA SOBRE FORMATO (quando perguntarem "é livro físico?", "é impresso?", "tem versão física?", "é digital?", etc):
+Responda exatamente assim, adaptando o nome do cliente:
+"O Identidade Desbloqueada é um livro digital — e isso foi uma escolha proposital.
+
+Eu queria que você pudesse começar a leitura agora. Não daqui a 7 dias, não quando o correio entregar. Agora.
+
+Você lê no celular, no tablet, no computador... onde estiver. Na fila do banco, no intervalo do trabalho, de madrugada quando o sono não vem e a alma pesa.
+
+Um livro físico fica na estante. Esse aqui foi feito pra ficar com você o tempo todo.
+
+E o acesso é imediato — assim que concluir a compra, já pode começar a ler.
+
+${config.product.checkoutUrl}"
+
 Se você não conseguir responder à pergunta do cliente com as informações disponíveis, responda exatamente: "[HANDOFF]"`;
 
 /**
