@@ -32,7 +32,7 @@ const autoResponses = [
     id: 'preco',
     keywords: ['quanto custa', 'qual o valor', 'qual o preco', 'qual o preço', 'quanto é', 'quanto e', 'quanto ta', 'quanto tá', 'qual preco', 'qual preço', 'quanto ficou', 'quanto fica'],
     response: (nome) =>
-      `O Identidade Desbloqueada está por R$ 39,90.\n\n` +
+      `O Identidade Desbloqueada está por R$ 29,90.\n\n` +
       `Mas deixa eu te ser sincero: o valor do livro não está no preço. Está no que ele vai te fazer enxergar.\n\n` +
       `Tem gente que gastou mais do que isso num jantar e esqueceu no dia seguinte. Esse livro fica com você pra sempre.\n\n` +
       `${checkoutUrl}`,
@@ -53,7 +53,7 @@ const autoResponses = [
     keywords: ['nao tenho dinheiro', 'não tenho dinheiro', 'ta caro', 'tá caro', 'caro', 'nao tenho condicoes', 'não tenho condições', 'nao posso pagar', 'não posso pagar', 'sem dinheiro', 'nao posso', 'não posso', 'nao da', 'não dá', 'sem condicoes', 'sem condições'],
     response: (nome) =>
       `Eu entendo. De verdade. E não vou te pressionar.\n\n` +
-      `Mas deixa eu te falar uma coisa com sinceridade: R$ 39,90 é menos do que um lanche no shopping. E esse livro não vai te alimentar por uma hora — ele vai te confrontar pra vida inteira.\n\n` +
+      `Mas deixa eu te falar uma coisa com sinceridade: R$ 29,90 é menos do que um lanche no shopping. E esse livro não vai te alimentar por uma hora — ele vai te confrontar pra vida inteira.\n\n` +
       `Às vezes a gente diz "não posso" quando na verdade o coração tá dizendo "ainda não estou pronto". E tudo bem. Mas se for só uma questão de momento, o link vai continuar aqui quando você decidir.\n\n` +
       `${checkoutUrl}`,
   },
@@ -64,7 +64,7 @@ const autoResponses = [
       `Não, o Identidade Desbloqueada não é gratuito — e existe um motivo pra isso.\n\n` +
       `O que é de graça, a gente consome e esquece. O que tem valor, a gente leva a sério.\n\n` +
       `Esse livro custou meses de oração, escrita e confronto pessoal. Ele não foi feito pra ser mais um PDF esquecido no celular. Foi feito pra te marcar.\n\n` +
-      `Por R$ 39,90, você tem acesso imediato a algo que pode mudar a forma como você se enxerga diante de Deus. É menos que um jantar — e dura pra sempre.\n\n` +
+      `Por R$ 29,90, você tem acesso imediato a algo que pode mudar a forma como você se enxerga diante de Deus. É menos que um jantar — e dura pra sempre.\n\n` +
       `${checkoutUrl}`,
   },
   {
@@ -82,7 +82,7 @@ const autoResponses = [
     response: (nome) =>
       `Eu não vou te dizer que vale a pena — porque isso você só vai sentir quando ler.\n\n` +
       `O que eu posso te dizer é que esse livro não foi escrito pra te entreter. Foi escrito pra te confrontar. Cada capítulo mexe com algo que você talvez tenha evitado por anos.\n\n` +
-      `Quem já leu sabe: depois que você enxerga, não tem como voltar atrás. E se não fizer sentido pra você, o risco é zero — são apenas R$ 39,90.\n\n` +
+      `Quem já leu sabe: depois que você enxerga, não tem como voltar atrás. E se não fizer sentido pra você, o risco é zero — são apenas R$ 29,90.\n\n` +
       `${checkoutUrl}`,
   },
   {
