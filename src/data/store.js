@@ -57,6 +57,25 @@ const store = {
   },
 
   /**
+   * Marca lead como bloqueado (não recebe mais mensagens automáticas)
+   * Usado após handoff para atendimento humano
+   */
+  markBlocked(phone) {
+    if (!leads[phone]) {
+      leads[phone] = { phone, createdAt: new Date().toISOString() };
+    }
+    leads[phone].blocked = true;
+    leads[phone].blockedAt = new Date().toISOString();
+  },
+
+  /**
+   * Verifica se o lead está bloqueado (handoff já realizado)
+   */
+  isBlocked(phone) {
+    return leads[phone]?.blocked === true;
+  },
+
+  /**
    * Retorna todos os leads
    */
   getAllLeads() {

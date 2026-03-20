@@ -38,6 +38,12 @@ router.post('/webhook', async (req, res) => {
     const cleanPhone = phone.replace(/\D/g, '');
     console.log(`[WhatsApp In] ${isAudio ? 'ÁUDIO' : 'Mensagem'} de ${cleanPhone}: ${text || '[áudio]'}`);
 
+    // 🚫 BLOQUEIO: Se já foi feito handoff, não responde mais NADA
+    if (store.isBlocked(cleanPhone)) {
+      console.log(`[WhatsApp] ${cleanPhone} está BLOQUEADO (handoff já realizado) — ignorando mensagem`);
+      return res.status(200).json({ status: 'ignored', reason: 'blocked' });
+    }
+
     // Busca dados do lead
     const lead = store.getLead(cleanPhone);
     const customerName = lead?.name || body.senderName || 'Cliente';
@@ -81,14 +87,16 @@ router.post('/webhook', async (req, res) => {
     const response = await claude.answerQuestion(customerName, text, context);
 
     if (response.needsHandoff) {
-      console.log(`[WhatsApp] Handoff para humano — ${cleanPhone}`);
+      console.log(`[WhatsApp] Handoff para humano — ${cleanPhone} — BLOQUEANDO futuras mensagens`);
       await whatsapp.sendMessage(cleanPhone, messages.humanHandoff(customerName));
       store.upsertLead(cleanPhone, { needsHumanAttention: true });
+      // 🔒 Bloqueia permanentemente — não envia mais mensagens automáticas
+      store.markBlocked(cleanPhone);
     } else {
       await whatsapp.sendMessage(cleanPhone, response.text);
     }
 
-    res.status(200).json({ status: 'ok', source: 'claude' });
+    res.status(200).json({ status: 'ok', source: response.needsHandoff ? 'handoff_blocked' : 'claude' });
   } catch (err) {
     console.error('[WhatsApp Route] Erro:', err.message);
     res.status(500).json({ error: 'Erro interno' });
