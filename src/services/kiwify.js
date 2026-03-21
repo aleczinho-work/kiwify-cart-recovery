@@ -78,6 +78,7 @@ function mapEventType(event) {
     order_approved: 'purchase_approved',
     compra_aprovada: 'purchase_approved',
     purchase_approved: 'purchase_approved',
+    order_paid: 'purchase_approved',
     // Pix gerado (Kiwify envia como "pix_created")
     pix_generated: 'pix_generated',
     pix_gerado: 'pix_generated',

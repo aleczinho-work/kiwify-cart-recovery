@@ -28,15 +28,25 @@ router.post('/webhook', async (req, res) => {
     const phone = body.phone || '';
     const text = body.text?.message || body.text || '';
 
-    // Detecta se é áudio (Z-API envia áudio sem campo text)
-    const isAudio = !!(body.audio || body.type === 'audio' || body.messageType === 'audio' || body.isAudio);
+    // Detecta se é áudio (Z-API envia em vários formatos)
+    const isAudio = !!(body.audio || body.ptt || body.type === 'audio' || body.type === 'ptt' ||
+                       body.messageType === 'audio' || body.messageType === 'ptt' ||
+                       body.isAudio || body.audioMessage || body.pttMessage);
 
-    if (!phone || (!text && !isAudio)) {
+    // Detecta se é imagem ou documento (comprovante de pagamento)
+    const isImage = !!(body.image || body.type === 'image' || body.messageType === 'image' ||
+                       body.isImage || body.imageMessage);
+    const isDocument = !!(body.document || body.type === 'document' || body.messageType === 'document' ||
+                         body.isDocument || body.documentMessage);
+    const isMedia = isImage || isDocument;
+
+    if (!phone || (!text && !isAudio && !isMedia)) {
       return res.status(200).json({ status: 'ignored' });
     }
 
     const cleanPhone = phone.replace(/\D/g, '');
-    console.log(`[WhatsApp In] ${isAudio ? 'ÁUDIO' : 'Mensagem'} de ${cleanPhone}: ${text || '[áudio]'}`);
+    const mediaType = isAudio ? 'ÁUDIO' : isImage ? 'IMAGEM' : isDocument ? 'DOCUMENTO' : 'Mensagem';
+    console.log(`[WhatsApp In] ${mediaType} de ${cleanPhone}: ${text || `[${mediaType.toLowerCase()}]`}`);
 
     // 🚫 BLOQUEIO: Se já foi feito handoff, não responde mais NADA
     if (store.isBlocked(cleanPhone)) {
@@ -54,6 +64,17 @@ router.post('/webhook', async (req, res) => {
       console.log(`[WhatsApp] Resposta automática (audio) para ${cleanPhone}`);
       await whatsapp.sendMessage(cleanPhone, audioResponse.text);
       return res.status(200).json({ status: 'ok', source: 'auto_audio' });
+    }
+
+    // 📎 Se for imagem ou documento (comprovante de pagamento)
+    if (isMedia) {
+      console.log(`[WhatsApp] Comprovante recebido (${mediaType}) de ${cleanPhone}`);
+      const comprovanteResponse =
+        `Recebemos seu comprovante! 🙏\n\n` +
+        `Vou verificar o pagamento e assim que for confirmado, seu acesso ao *Identidade Desbloqueada* será liberado.\n\n` +
+        `Isso pode levar alguns minutinhos. Obrigado pela paciência!`;
+      await whatsapp.sendMessage(cleanPhone, comprovanteResponse);
+      return res.status(200).json({ status: 'ok', source: 'auto_comprovante' });
     }
 
     // 1️⃣ PRIMEIRO: Tenta resposta automática por palavras-chave (custo zero)

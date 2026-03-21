@@ -39,7 +39,7 @@ const autoResponses = [
   },
   {
     id: 'formato',
-    keywords: ['livro fisico', 'livro físico', 'é fisico', 'é físico', 'é impresso', 'versao fisica', 'versão física', 'é digital', 'ebook', 'e-book', 'livro digital', 'entrega', 'envio', 'frete', 'correio'],
+    keywords: ['livro fisico', 'livro físico', 'é fisico', 'é físico', 'é impresso', 'versao fisica', 'versão física', 'é digital', 'ebook', 'e-book', 'livro digital', 'entrega', 'envio', 'frete', 'correio', 'receber em casa', 'recebo em casa', 'entrega em casa', 'chega em casa', 'vem pelo correio', 'vem pelos correios', 'chega na minha casa', 'enviam pra minha casa', 'manda pra minha casa', 'vai chegar', 'quando chega', 'como recebo', 'como eu recebo'],
     response: (nome) =>
       `O Identidade Desbloqueada é um livro digital — e isso foi uma escolha proposital.\n\n` +
       `Eu queria que você pudesse começar a leitura agora. Não daqui a 7 dias, não quando o correio entregar. Agora.\n\n` +
