@@ -28,7 +28,7 @@ async function scheduleMessage(phone, name, type, step, delaySec) {
  * Processa callback do QStash — envia a mensagem agendada
  */
 async function processScheduledMessage({ phone, name, type, step }) {
-  if (store.isConverted(phone)) {
+  if (await store.isConverted(phone)) {
     console.log(`[Recovery] ${phone} já converteu, pulando ${type} step ${step}`);
     return;
   }
@@ -59,7 +59,7 @@ async function processScheduledMessage({ phone, name, type, step }) {
       await whatsapp.sendMessage(phone, text);
     }
 
-    store.logMessage(phone, type, step);
+    await store.logMessage(phone, type, step);
     console.log(`[Recovery] ${type} step ${step} enviada para ${phone}`);
   } catch (err) {
     console.error(`[Recovery] Erro ao enviar ${type} step ${step} para ${phone}:`, err.message);
@@ -72,7 +72,7 @@ async function processScheduledMessage({ phone, name, type, step }) {
 async function startAbandonedCartRecovery(phone, name) {
   console.log(`[Recovery] Iniciando recuperação de carrinho para ${name} (${phone})`);
 
-  store.upsertLead(phone, { name, type: 'abandoned_cart', status: 'recovering' });
+  await store.upsertLead(phone, { name, type: 'abandoned_cart', status: 'recovering' });
 
   const delays = config.delays.abandonedCart;
   await scheduleMessage(phone, name, 'abandoned_cart', 1, Math.floor(delays.first / 1000));
@@ -86,7 +86,7 @@ async function startAbandonedCartRecovery(phone, name) {
 async function startPixRecovery(phone, name) {
   console.log(`[Recovery] Iniciando remarketing Pix para ${name} (${phone})`);
 
-  store.upsertLead(phone, { name, type: 'pix_generated', status: 'recovering' });
+  await store.upsertLead(phone, { name, type: 'pix_generated', status: 'recovering' });
 
   const delays = config.delays.pix;
   await scheduleMessage(phone, name, 'pix', 1, Math.floor(delays.first / 1000));
@@ -99,7 +99,7 @@ async function startPixRecovery(phone, name) {
 async function startBoletoRecovery(phone, name) {
   console.log(`[Recovery] Iniciando remarketing boleto para ${name} (${phone})`);
 
-  store.upsertLead(phone, { name, type: 'boleto_generated', status: 'recovering' });
+  await store.upsertLead(phone, { name, type: 'boleto_generated', status: 'recovering' });
 
   const delays = config.delays.boleto;
   await scheduleMessage(phone, name, 'boleto', 1, Math.floor(delays.first / 1000));
@@ -113,7 +113,7 @@ async function startBoletoRecovery(phone, name) {
 async function handlePurchaseApproved(phone, name) {
   console.log(`[Recovery] Compra aprovada para ${name} (${phone})`);
 
-  store.markConverted(phone);
+  await store.markConverted(phone);
 
   try {
     await whatsapp.sendMessage(phone, messages.purchaseApproved(name));

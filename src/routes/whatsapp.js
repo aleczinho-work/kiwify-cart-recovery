@@ -49,13 +49,13 @@ router.post('/webhook', async (req, res) => {
     console.log(`[WhatsApp In] ${mediaType} de ${cleanPhone}: ${text || `[${mediaType.toLowerCase()}]`}`);
 
     // 🚫 BLOQUEIO: Se já foi feito handoff, não responde mais NADA
-    if (store.isBlocked(cleanPhone)) {
+    if (await store.isBlocked(cleanPhone)) {
       console.log(`[WhatsApp] ${cleanPhone} está BLOQUEADO (handoff já realizado) — ignorando mensagem`);
       return res.status(200).json({ status: 'ignored', reason: 'blocked' });
     }
 
     // Busca dados do lead
-    const lead = store.getLead(cleanPhone);
+    const lead = await store.getLead(cleanPhone);
     const customerName = lead?.name || body.senderName || 'Cliente';
 
     // 🎤 Se for áudio, responde pedindo texto
@@ -110,9 +110,9 @@ router.post('/webhook', async (req, res) => {
     if (response.needsHandoff) {
       console.log(`[WhatsApp] Handoff para humano — ${cleanPhone} — BLOQUEANDO futuras mensagens`);
       await whatsapp.sendMessage(cleanPhone, messages.humanHandoff(customerName));
-      store.upsertLead(cleanPhone, { needsHumanAttention: true });
+      await store.upsertLead(cleanPhone, { needsHumanAttention: true });
       // 🔒 Bloqueia permanentemente — não envia mais mensagens automáticas
-      store.markBlocked(cleanPhone);
+      await store.markBlocked(cleanPhone);
     } else {
       await whatsapp.sendMessage(cleanPhone, response.text);
     }
